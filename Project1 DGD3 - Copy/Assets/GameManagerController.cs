@@ -14,6 +14,7 @@ public class GameManagerController : MonoBehaviour
     [Range(0, 20)] public float walkdelay;
     public GameObject steps;
     private bool stop;
+    [HideInInspector] public bool detected;
     
     void Awake()
     {

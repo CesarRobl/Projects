@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -74,5 +75,16 @@ public class PlayerController : MonoBehaviour
     {
         
     }
-    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
+        if (fov != null) GameManagerController.gm.detected = true;
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
+        if (fov != null) GameManagerController.gm.detected = false;
+    }
 }
