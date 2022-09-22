@@ -14,7 +14,7 @@ public class EnemyController : MonoBehaviour
     public LayerMask Ground, Player;
     private float patroltimer = 2;
     
-    private bool arrived, detected, heard, stop;
+    private bool arrived, detected, heard, stop, chasing = false;
     private float randomx, randomz;
 
     private bool locset;
@@ -35,13 +35,17 @@ public class EnemyController : MonoBehaviour
     void EnemyState()
     {
         if(!detected && !heard || stop) patroltimer -= Time.deltaTime;
-        if (patroltimer <= 0)
+        if (patroltimer <= 0 && !chasing)
         {
             GameManagerController.gm.state = GameManagerController.EnemyState.Patrolling;
             stop = true;
             
         }
-        
+
+        if (GameManagerController.gm.detected)
+        {
+            GameManagerController.gm.state = GameManagerController.EnemyState.Chasing;
+        }
         switch (GameManagerController.gm.state)
         {
             case GameManagerController.EnemyState.Searching:
@@ -56,6 +60,8 @@ public class EnemyController : MonoBehaviour
             }
             case GameManagerController.EnemyState.Chasing:
             {
+                nav.destination = GameManagerController.pc.transform.position;
+                chasing = true;
                 break;
             }
         }
