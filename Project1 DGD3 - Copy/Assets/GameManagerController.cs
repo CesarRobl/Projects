@@ -15,18 +15,28 @@ public class GameManagerController : MonoBehaviour
     public GameObject steps;
     private bool stop;
     [HideInInspector] public bool detected;
+    public float sensitivex;
+    public Light light;
+    public bool lights;
     
     void Awake()
     {
+       
         gm = this;
     }
 
     
     void Update()
     {
+        HideMouse();
         PlayerSteps();
+       
     }
-
+    void HideMouse()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
     void PlayerSteps()
     {
         
@@ -68,6 +78,8 @@ public class GameManagerController : MonoBehaviour
             }
         }
     }
+
+    
     public enum PlayerMovementState
     {
       Moving = 0,

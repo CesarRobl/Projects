@@ -9,9 +9,10 @@ public class PlayerController : MonoBehaviour
     public Rigidbody rb;
     [HideInInspector] public float hp = 1;
     private Vector3 speed;
-    [SerializeField]public bool walking;
-    [SerializeField] public bool standing;
-    [HideInInspector] public float zspeed = 10;
+    [SerializeField]public bool walking,standing;
+    public bool onlight;
+    [HideInInspector] public float zspeed = 10, mousex, mousey;
+    
     void Awake()
     {
         GameManagerController.pc = this;
@@ -20,10 +21,15 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         PlayerMovement();
+        Flashlight();
     }
 
     void PlayerMovement()
     {
+        mousey = Mathf.Clamp(mousey, -90, 90);
+        mousex = Input.GetAxis("Mouse X") * GameManagerController.gm.sensitivex;
+        mousey =  -Input.GetAxis("Mouse Y") * GameManagerController.gm.sensitivex;
+        transform.Rotate(0,mousex,0);
         Vector3 vel = new Vector3(0, 0, 0);
         speed = new Vector3(1.5f, 0, 0);
         Vector3 sidespeed = transform.right * zspeed;
@@ -71,6 +77,23 @@ public class PlayerController : MonoBehaviour
         rb.velocity = vel;
     }
 
+    void Flashlight()
+    {
+        bool on;
+        Debug.Log(onlight);
+        if (Input.GetMouseButtonDown(0))
+        {
+            if(!onlight)GameManagerController.gm.lights = true;
+            else if (onlight) GameManagerController.gm.lights = false;
+
+            if (GameManagerController.gm.lights) onlight = true;
+            else if (!GameManagerController.gm.lights) onlight = false;
+
+        }
+
+        if (GameManagerController.gm.lights) GameManagerController.gm.light.range = 20;
+        else GameManagerController.gm.light.range = 0;
+    }
     void Die()
     {
         
