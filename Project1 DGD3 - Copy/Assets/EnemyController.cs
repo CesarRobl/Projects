@@ -1,10 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.AI;
+using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
+using Vector3 = UnityEngine.Vector3;
 
 
 public class EnemyController : MonoBehaviour
@@ -14,14 +18,17 @@ public class EnemyController : MonoBehaviour
     public LayerMask Ground, Player;
     private float patroltimer = 2;
     
-    private bool arrived, detected, heard, stop, chasing = false;
+    private bool arrived,  heard, stop,  ground = true, wall, playerfound;
     private float randomx, randomz;
-
-    private bool locset;
-    private float loctimer = 2;
+    
+    private bool locset,stuck;
+    private float loctimer;
+    private Vector3 randomloc;
+    public float stucktimer;
     void Awake()
     {
         nav = GetComponent<NavMeshAgent>();
+        GameManagerController.ec = this;
     }
 
   
@@ -29,13 +36,18 @@ public class EnemyController : MonoBehaviour
     {
         
       EnemyState();
-     
+     if(GameManagerController.gm.chasing)CheckforPlayer();
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawCube(randomloc, new Vector3(2,2,2));
     }
 
     void EnemyState()
     {
-        if(!detected && !heard || stop) patroltimer -= Time.deltaTime;
-        if (patroltimer <= 0 && !chasing)
+        if(playerfound! && !heard || stop) patroltimer -= Time.deltaTime;
+        if (patroltimer <= 0 && !playerfound)
         {
             GameManagerController.gm.state = GameManagerController.EnemyState.Patrolling;
             stop = true;
@@ -44,7 +56,7 @@ public class EnemyController : MonoBehaviour
 
         if (GameManagerController.gm.detected)
         {
-            GameManagerController.gm.state = GameManagerController.EnemyState.Chasing;
+            GameManagerController.gm.state = GameManagerController.EnemyState.Searching;
         }
         switch (GameManagerController.gm.state)
         {
@@ -60,40 +72,79 @@ public class EnemyController : MonoBehaviour
             }
             case GameManagerController.EnemyState.Chasing:
             {
-                nav.destination = GameManagerController.pc.transform.position;
-                chasing = true;
+                Chase();
                 break;
             }
         }
+    }
+
+    void Chase()
+    {
+        nav.SetDestination(GameManagerController.pc.transform.position);
+    }
+
+    void CheckforPlayer()
+    {
+        Vector3 direction = transform.position - GameManagerController.pc.transform.position;
+        
+        if (Physics.Raycast(transform.position, direction))
+        {
+            
+        }
+
     }
 
     void FollowSteps()
     {
         if (footsteps)
         {
-            nav.destination = GameManagerController.pc.transform.position;
+            nav.SetDestination(GameManagerController.pc.transform.position);
         }
     }
 
     void Patrol()
     {
         
-        Vector3 randomloc = new Vector3(randomx, transform.position.y, randomz);
-        if (!locset)
+       randomloc = new Vector3(randomx, transform.position.y, randomz);
+        if (!locset || !ground || wall || stuck)
         {
-            randomx = Random.Range(-10 + transform.position.x, 10 + transform.position.x);
-            randomz = Random.Range(-10 + transform.position.z, 10 + transform.position.z);
+            randomx = Random.Range(Random.Range(-20,0) + transform.position.x, Random.Range(0,10) + transform.position.x);
+            randomz = Random.Range(Random.Range(-20,0)+ transform.position.z, Random.Range(0,10) + transform.position.z);
             locset = true;
             arrived = false;
+            stuck = false;
+            stucktimer = 0;
         }
 
-        if (!arrived) nav.destination = randomloc;
-        if (nav.destination == randomloc)
+         stucktimer += Time.deltaTime;
+        if (stucktimer >= 8)
         {
-            Debug.Log("I've arrived");
-            arrived = true;
-            locset = false;
+            stuck = true;
         }
+        
+         nav.SetDestination(randomloc);
+        if (transform.position == randomloc)
+        {
+            stucktimer = 0;
+            loctimer += Time.deltaTime;
+        }
+
+        if (loctimer >= 4)
+        {
+            locset = false;
+            loctimer = 0;
+        }
+        if (Physics.Raycast(randomloc, -transform.up,10 ,LayerMask.NameToLayer("Ground")))
+        {
+            ground = true;
+        }
+        else ground = false;
+
+        if (Physics.CheckBox(randomloc, new Vector3(1f, 1f, 1f), Quaternion.Euler(0, 0, 0), LayerMask.NameToLayer("Wall")))
+        {
+            wall = true;
+        }
+        else wall = false;
     }
 
     private void OnTriggerEnter(Collider other)

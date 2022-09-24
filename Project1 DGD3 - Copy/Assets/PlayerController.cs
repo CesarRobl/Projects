@@ -88,11 +88,15 @@ public class PlayerController : MonoBehaviour
 
             if (GameManagerController.gm.lights) onlight = true;
             else if (!GameManagerController.gm.lights) onlight = false;
-
         }
 
         if (GameManagerController.gm.lights) GameManagerController.gm.light.range = 20;
         else GameManagerController.gm.light.range = 0;
+
+        if (Input.GetMouseButton(1))
+        {
+            
+        }
     }
     void Die()
     {
@@ -102,12 +106,12 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
-        if (fov != null) GameManagerController.gm.detected = true;
+        if (fov != null) GameManagerController.gm.chasing = true;
     }
 
     private void OnTriggerExit(Collider other)
     {
         FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
-        if (fov != null) GameManagerController.gm.detected = false;
+        if (fov != null) GameManagerController.gm.chasing = false;
     }
 }
