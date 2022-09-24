@@ -6,6 +6,7 @@ public class GameManagerController : MonoBehaviour
 {
     public static PlayerController pc;
     public static GameManagerController gm;
+    public static EnemyController ec;
     [HideInInspector] public GameObject[] step;
     public static bool FlashUpgrade;
     public PlayerMovementState movestate;
@@ -14,7 +15,7 @@ public class GameManagerController : MonoBehaviour
     [Range(0, 20)] public float walkdelay;
     public GameObject steps;
     private bool stop;
-    [HideInInspector] public bool detected;
+    [HideInInspector] public bool detected, chasing;
     public float sensitivex;
     public Light light;
     public bool lights;
@@ -99,5 +100,10 @@ public class GameManagerController : MonoBehaviour
         Searching = 1,
         Patrolling = 2,
         Chasing = 3,
+    }
+    public enum LightState
+    {
+        Normal = 1,
+        Strong = 2,
     }
 }

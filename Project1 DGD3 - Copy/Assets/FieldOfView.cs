@@ -26,30 +26,7 @@ public class FieldOfView : MonoBehaviour
              new Vector3(.5f,1,0.5f),
              new Vector3(6,-10,1.8f)
          };
-//         Mesh.vertices = points;
-//         
-//         Mesh.triangles = new int[21]
-//         {
-//             0,1,2,
-//             0,3,1,
-//             2,1,3,
-//             3,0,2,
-//             1,4,2,
-//             4,1,3,
-//             2,4,3,
-//         };
-//         Mesh.uv = new Vector2[5]
-//         {
-// new Vector2(0,0),
-// new Vector2(0,0),
-// new Vector2(0,0),
-// new Vector2(0,0),
-// new Vector2(0,0),
-//
-//
-//         };
-//         GetComponent<MeshFilter>().mesh = Mesh;
-//         GetComponent<MeshCollider>().sharedMesh = Mesh;
+
 
     }
 
@@ -83,5 +60,18 @@ public class FieldOfView : MonoBehaviour
         };
         GetComponent<MeshFilter>().mesh = Mesh;
         GetComponent<MeshCollider>().sharedMesh = Mesh;
+    }
+
+    void MakeSmaller()
+    {
+        if (Physics.Raycast(points[1], Vector3.down, 1, LayerMask.NameToLayer("Wall")))
+        {
+            
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawLine(points[1], new Vector3(1,1,0));
     }
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="02b9d30e-31e6-473c-baa5-7d78598afd74" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Project1 DGD3 - Copy/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Project1 DGD3 - Copy/.idea/indexLayout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assembly-CSharp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp.csproj" afterDir="false" />
@@ -8,6 +9,9 @@
       <change beforePath="$PROJECT_DIR$/Project1 DGD3 - Copy.sln" beforeDir="false" afterPath="$PROJECT_DIR$/Project1 DGD3 - Copy.sln" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Temp/workerlic" beforeDir="false" />
     </list>
+=======
+    <list default="true" id="02b9d30e-31e6-473c-baa5-7d78598afd74" name="Changes" comment="" />
+>>>>>>> 409bdece619912bf0b7996e6c988f55c30b0ad48
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -17,7 +21,6 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Assets/CameraController.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/FieldOfView.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -29,6 +32,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+<<<<<<< HEAD
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;Discover.Launch.Via.Unity&quot;: &quot;true&quot;,
@@ -38,6 +42,13 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+=======
+  <component name="PropertiesComponent">
+    <property name="Discover.Launch.Via.Unity" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+>>>>>>> 409bdece619912bf0b7996e6c988f55c30b0ad48
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="UnitTests (batch mode)" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\2021.3.9f1\Editor\Unity.exe" />
@@ -79,7 +90,11 @@
       <workItem from="1663269421295" duration="4904000" />
       <workItem from="1663777646838" duration="3619000" />
       <workItem from="1663846307959" duration="3540000" />
+<<<<<<< HEAD
       <workItem from="1664052292689" duration="28000" />
+=======
+      <workItem from="1663869982190" duration="8913000" />
+>>>>>>> 409bdece619912bf0b7996e6c988f55c30b0ad48
     </task>
     <servers />
   </component>
@@ -99,6 +114,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
