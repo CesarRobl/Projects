@@ -1,17 +1,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using UnityEngine;
-using UnityEngine.UI;
+
+
 
 public class PlayerController : MonoBehaviour
 {
     public Rigidbody rb;
+    public Light night;
     [HideInInspector] public float hp = 1;
     private Vector3 speed;
-    [SerializeField]public bool walking,standing;
+    [SerializeField]public bool charging,charged,flashed;
     public bool onlight;
-    [HideInInspector] public float zspeed = 10, mousex, mousey;
+    [HideInInspector] public float zspeed = 10, mousex, mousey,charge,nighttimer;
     
     void Awake()
     {
@@ -22,6 +25,7 @@ public class PlayerController : MonoBehaviour
     {
         PlayerMovement();
         Flashlight();
+        Nightvision();
     }
 
     void PlayerMovement()
@@ -80,22 +84,93 @@ public class PlayerController : MonoBehaviour
     void Flashlight()
     {
         bool on;
-        Debug.Log(onlight);
-        if (Input.GetMouseButtonDown(0))
-        {
-            if(!onlight)GameManagerController.gm.lights = true;
-            else if (onlight) GameManagerController.gm.lights = false;
 
-            if (GameManagerController.gm.lights) onlight = true;
-            else if (!GameManagerController.gm.lights) onlight = false;
+        if (!charging)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (!onlight) GameManagerController.gm.lights = true;
+                else if (onlight) GameManagerController.gm.lights = false;
+
+                if (GameManagerController.gm.lights) onlight = true;
+                else if (!GameManagerController.gm.lights) onlight = false;
+            }
+
+            if (GameManagerController.gm.lights)
+            {
+                GameManagerController.gm.light.range = 80;
+                GameManagerController.gm.bulblight.intensity = .4f;
+            }
+            else
+            {
+                GameManagerController.gm.light.range = 0;
+                GameManagerController.gm.bulblight.intensity = 0;
+            }
         }
 
-        if (GameManagerController.gm.lights) GameManagerController.gm.light.range = 20;
-        else GameManagerController.gm.light.range = 0;
+        
 
         if (Input.GetMouseButton(1))
         {
+            GameManagerController.gm.lights = false;
+            charging = true;
+            if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+            {
+                charge += .3f;
+            }
+
+            if (charge >= 10)
+            {
+                charged = true;
+                Debug.Log("I am charged");
+            }
+        }
+        
+
+        if (Input.GetMouseButtonUp(1))
+        {
+            charging = false;
+            if (charged)
+            {
+                GameManagerController.gm.bulblight.type = LightType.Directional;
+                GameManagerController.gm.bulblight.intensity = 1;
+                ObjectController.obj.FlashView.SetActive(true);
+                flashed = true;
+            }
             
+            if(!charged && !flashed)GameManagerController.gm.lights = true;
+
+            charge = 0;
+        }
+        
+        if (flashed)
+        {
+            GameManagerController.gm.bulblight.intensity -= .001f;
+            if (GameManagerController.gm.bulblight.intensity <= 0f)
+            {
+                GameManagerController.gm.bulblight.type = LightType.Spot;
+                flashed = false;
+                charged = false;
+            }
+        }
+        
+    }
+
+    void Nightvision()
+    {
+        if (!GameManagerController.gm.lights && !charging)
+        {
+            if(nighttimer <=5)nighttimer += Time.deltaTime;
+            if (nighttimer >= 5)
+            {
+                if (night.intensity <= .8f) night.intensity += Time.deltaTime;
+            }
+        }
+
+        if (GameManagerController.gm.lights || charging)
+        {
+            nighttimer = 0;
+            night.intensity = 0;
         }
     }
     void Die()
@@ -106,12 +181,20 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
-        if (fov != null) GameManagerController.gm.chasing = true;
+        if (fov != null && !fov.flash)
+        {
+            GameManagerController.gm.chasing = true;
+            
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
         FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
-        if (fov != null) GameManagerController.gm.chasing = false;
+        {
+            if(fov != null && !fov.flash) GameManagerController.gm.chasing = false;
+            
+        }
+        
     }
 }
