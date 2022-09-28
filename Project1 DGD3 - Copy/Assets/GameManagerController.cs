@@ -7,28 +7,36 @@ public class GameManagerController : MonoBehaviour
     public static PlayerController pc;
     public static GameManagerController gm;
     public static EnemyController ec;
+    public static CameraController cam;
+    public GameObject steps;
+    
     [HideInInspector] public GameObject[] step;
     public static bool FlashUpgrade;
     public PlayerMovementState movestate;
     public PlayerCrouching crouching;
     public EnemyState state;
     [Range(0, 20)] public float walkdelay;
-    public GameObject steps;
+    
     private bool stop;
-    [HideInInspector] public bool detected, chasing;
+    [HideInInspector] public bool detected = false, chasing;
     public float sensitivex;
+   
     public Light light;
+    [HideInInspector]public Light bulblight;
     public bool lights;
+    public Vector3 test;
     
     void Awake()
     {
-       
+        bulblight = ObjectController.obj.bulb.GetComponent<Light>();
         gm = this;
     }
 
     
     void Update()
     {
+        
+        test = ec.nav.velocity;
         HideMouse();
         PlayerSteps();
        
@@ -43,7 +51,7 @@ public class GameManagerController : MonoBehaviour
         
         if (pc.rb.velocity != Vector3.zero) movestate = PlayerMovementState.Moving;
         else movestate = PlayerMovementState.Standing;
-
+    
         if (movestate == PlayerMovementState.Moving && stop == false)
         {
             steps = Instantiate(ObjectController.obj.steps, pc.transform.position, Quaternion.Euler(0, 0, 0));
@@ -53,6 +61,7 @@ public class GameManagerController : MonoBehaviour
         }
         else if(movestate == PlayerMovementState.Standing)
         {
+            ec.footsteps = false;
             Destroy(steps);
             stop = false;
         }
@@ -97,9 +106,11 @@ public class GameManagerController : MonoBehaviour
 
     public enum EnemyState
     {
+        Non = 0,
         Searching = 1,
         Patrolling = 2,
         Chasing = 3,
+        Stunned = 4
     }
     public enum LightState
     {

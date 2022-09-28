@@ -7,9 +7,12 @@ public class ObjectController : MonoBehaviour
     public static ObjectController obj;
     public GameObject steps;
     public  GameObject Flashlight;
+    public GameObject bulb;
+    public GameObject FlashView;
     
     void Awake()
     {
+      
         obj = this;
     }
 

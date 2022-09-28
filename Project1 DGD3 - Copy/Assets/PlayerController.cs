@@ -1,17 +1,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using UnityEngine;
-using UnityEngine.UI;
+
 
 public class PlayerController : MonoBehaviour
 {
     public Rigidbody rb;
     [HideInInspector] public float hp = 1;
     private Vector3 speed;
-    [SerializeField]public bool walking,standing;
+    [SerializeField]public bool charging,charged,flashed;
     public bool onlight;
-    [HideInInspector] public float zspeed = 10, mousex, mousey;
+    [HideInInspector] public float zspeed = 10, mousex, mousey,charge;
     
     void Awake()
     {
@@ -80,8 +81,8 @@ public class PlayerController : MonoBehaviour
     void Flashlight()
     {
         bool on;
-        Debug.Log(onlight);
-        if (Input.GetMouseButtonDown(0))
+        
+        if (Input.GetMouseButtonDown(0) && !charging)
         {
             if(!onlight)GameManagerController.gm.lights = true;
             else if (onlight) GameManagerController.gm.lights = false;
@@ -95,8 +96,47 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetMouseButton(1))
         {
-            
+            GameManagerController.gm.light.range = 0;
+            charging = true;
+            if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+            {
+                charge += .3f;
+            }
+
+            if (charge >= 10)
+            {
+                charged = true;
+                Debug.Log("I am charged");
+            }
         }
+        
+
+        if (Input.GetMouseButtonUp(1))
+        {
+            charging = false;
+            if (charged)
+            {
+                GameManagerController.gm.bulblight.enabled = true;
+                GameManagerController.gm.bulblight.intensity = 1;
+                ObjectController.obj.FlashView.SetActive(true);
+                flashed = true;
+            }
+            
+            if(!charged && !flashed)GameManagerController.gm.light.range = 20;
+            charge = 0;
+        }
+        
+        if (flashed)
+        {
+            GameManagerController.gm.bulblight.intensity -= .001f;
+            if (GameManagerController.gm.bulblight.intensity <= 0f)
+            {
+                GameManagerController.gm.bulblight.enabled = false;
+                flashed = false;
+                charged = false;
+            }
+        }
+        
     }
     void Die()
     {
@@ -106,12 +146,20 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
-        if (fov != null) GameManagerController.gm.chasing = true;
+        if (fov != null && !fov.flash)
+        {
+            GameManagerController.gm.chasing = true;
+            
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
         FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
-        if (fov != null) GameManagerController.gm.chasing = false;
+        {
+            if(fov != null && !fov.flash) GameManagerController.gm.chasing = false;
+            
+        }
+        
     }
 }
