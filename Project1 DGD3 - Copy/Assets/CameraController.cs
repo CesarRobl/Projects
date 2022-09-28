@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    
+    // Start is called before the first frame update
     void Start()
     {
-        GameManagerController.cam = this;
+        
     }
 
     // Update is called once per frame
@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour
         FollowPlayer();
     }
 
-    public void FollowPlayer()
+    void FollowPlayer()
     {
         
         transform.Rotate(GameManagerController.pc.mousey,0,0);

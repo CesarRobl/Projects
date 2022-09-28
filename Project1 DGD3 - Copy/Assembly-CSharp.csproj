@@ -41,13 +41,10 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\LightController.cs" />
-     <Compile Include="Assets\DetectController.cs" />
      <Compile Include="Assets\ObjectController.cs" />
      <Compile Include="Assets\EnemyController.cs" />
      <Compile Include="Assets\GameManagerController.cs" />
      <Compile Include="Assets\PlayerController.cs" />
-     <Compile Include="Assets\FlashController.cs" />
      <Compile Include="Assets\FieldOfView.cs" />
      <Compile Include="Assets\CameraController.cs" />
      <Reference Include="UnityEngine">

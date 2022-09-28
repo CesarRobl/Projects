@@ -7,21 +7,17 @@ using Vector3 = UnityEngine.Vector3;
 
 public class FieldOfView : MonoBehaviour
 {
-    
-    
     private Mesh Mesh;
     public Vector3 vertices;
     private int[] triangles;
     private Vector2[] uv;
     private MeshCollider collide;
     public Vector3[] points;
-    public Vector3[] flashpoints;
-
-    public bool flash;
     
     private void Awake()
     {
-
+//         Mesh = new Mesh();
+//
          points = new Vector3[5]
          {
              new Vector3(-5,-10,-2.4f),
@@ -30,15 +26,7 @@ public class FieldOfView : MonoBehaviour
              new Vector3(.5f,1,0.5f),
              new Vector3(6,-10,1.8f)
          };
-         
-         flashpoints = new Vector3[5]
-         {
-             new Vector3(-5,-10,-2.4f),
-             new Vector3(6,-10,-2.4f),
-             new Vector3(-5,-10,1.8f),
-             new Vector3(.5f,1,0.5f),
-             new Vector3(6,-10,1.8f)
-         };
+
 
     }
 
@@ -47,9 +35,8 @@ public class FieldOfView : MonoBehaviour
     {
         Mesh = new Mesh();
 
-
-        if (!flash) Mesh.vertices = points;
-        else Mesh.vertices = flashpoints;
+      
+        Mesh.vertices = points;
         
         Mesh.triangles = new int[21]
         {

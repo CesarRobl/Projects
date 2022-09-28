@@ -14,19 +14,17 @@ using Vector3 = UnityEngine.Vector3;
 public class EnemyController : MonoBehaviour
 {
     public NavMeshAgent nav;
-    
+    private bool footsteps;
     public LayerMask Ground, Player;
     private float patroltimer = 2;
     
-    [HideInInspector]public bool arrived,  heard = false, stop,  ground = true, wall, playerfound,footsteps,isaw;
+    private bool arrived,  heard, stop,  ground = true, wall, playerfound;
     private float randomx, randomz;
-    private bool lol;
+    
     private bool locset,stuck;
     private float loctimer;
-    private Vector3 randomloc,direction;
-    public float stucktimer,chasetimer,searchtimer;
-    private Vector3 no;
-    
+    private Vector3 randomloc;
+    public float stucktimer;
     void Awake()
     {
         nav = GetComponent<NavMeshAgent>();
@@ -36,7 +34,6 @@ public class EnemyController : MonoBehaviour
   
     void Update()
     {
-        direction = GameManagerController.pc.transform.position - transform.position;
         
       EnemyState();
      if(GameManagerController.gm.chasing)CheckforPlayer();
@@ -45,13 +42,11 @@ public class EnemyController : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawCube(randomloc, new Vector3(2,2,2));
-        Gizmos.DrawRay(transform.position,no);
     }
 
     void EnemyState()
     {
-        if (playerfound) GameManagerController.gm.state = GameManagerController.EnemyState.Chasing;
-        if(!playerfound && !lol|| stop) patroltimer -= Time.deltaTime;
+        if(playerfound! && !heard || stop) patroltimer -= Time.deltaTime;
         if (patroltimer <= 0 && !playerfound)
         {
             GameManagerController.gm.state = GameManagerController.EnemyState.Patrolling;
@@ -59,11 +54,10 @@ public class EnemyController : MonoBehaviour
             
         }
 
-        if(lol && !playerfound )
+        if (GameManagerController.gm.detected)
         {
             GameManagerController.gm.state = GameManagerController.EnemyState.Searching;
         }
-       
         switch (GameManagerController.gm.state)
         {
             case GameManagerController.EnemyState.Searching:
@@ -87,65 +81,29 @@ public class EnemyController : MonoBehaviour
     void Chase()
     {
         nav.SetDestination(GameManagerController.pc.transform.position);
-        if (!isaw) chasetimer += Time.deltaTime;
-        if (chasetimer >= 4f)
-        {
-            playerfound = false;
-            GameManagerController.gm.state = GameManagerController.EnemyState.Patrolling;
-            chasetimer = 0;
-        }
     }
 
     void CheckforPlayer()
     {
-        nav.angularSpeed = 250;
-        nav.acceleration = 10;
-        nav.speed = 7.5f;
-        Debug.Log(GameManagerController.gm.chasing);
-         
-        no = direction;
-        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, 100))
-        {
-            PlayerController pc = hit.collider.GetComponent<PlayerController>();
-            if (pc != null)
-            {
-                playerfound = true;
-                isaw = true;
-            }
-            else isaw = false;
-
-        }
+        Vector3 direction = transform.position - GameManagerController.pc.transform.position;
         
+        if (Physics.Raycast(transform.position, direction))
+        {
+            
+        }
 
     }
 
     void FollowSteps()
     {
-        nav.angularSpeed = 190;
-        nav.acceleration = 10;
-        nav.speed = 5f;
-        
         if (footsteps)
         {
             nav.SetDestination(GameManagerController.pc.transform.position);
-            
-        }
-        else searchtimer += Time.deltaTime;
-
-        if (searchtimer >= 4f)
-        {
-            GameManagerController.gm.state = GameManagerController.EnemyState.Patrolling;
-            lol = false;
-            Debug.Log("I've stopped");
-            searchtimer = 0;
         }
     }
 
     void Patrol()
     {
-        nav.angularSpeed = 120;
-        nav.acceleration = 8;
-        nav.speed = 3.5f;
         
        randomloc = new Vector3(randomx, transform.position.y, randomz);
         if (!locset || !ground || wall || stuck)
@@ -170,7 +128,7 @@ public class EnemyController : MonoBehaviour
             stucktimer = 0;
             loctimer += Time.deltaTime;
         }
-        
+
         if (loctimer >= 4)
         {
             locset = false;
@@ -187,24 +145,20 @@ public class EnemyController : MonoBehaviour
             wall = true;
         }
         else wall = false;
-        
-        
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        DetectController dc = other.gameObject.GetComponent<DetectController>();
-        if (dc != null)
+        if (GameManagerController.gm.steps != null)
         {
-            lol = true;
             footsteps = true;
+            GameManagerController.gm.state = GameManagerController.EnemyState.Searching;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        DetectController dc = other.gameObject.GetComponent<DetectController>();
-        if (dc != null)
+        if (GameManagerController.gm.steps != null)
         {
             footsteps = false;
         }
