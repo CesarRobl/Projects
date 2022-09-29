@@ -8,11 +8,12 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public Rigidbody rb;
+    public Light night;
     [HideInInspector] public float hp = 1;
     private Vector3 speed;
-    [SerializeField]public bool charging,charged,flashed;
+    [SerializeField]public bool charging,charged,flashed,nightvision;
     public bool onlight;
-    [HideInInspector] public float zspeed = 10, mousex, mousey,charge;
+    [HideInInspector] public float zspeed = 10, mousex, mousey,charge,nightimer;
     
     void Awake()
     {
@@ -23,6 +24,7 @@ public class PlayerController : MonoBehaviour
     {
         PlayerMovement();
         Flashlight();
+        NightVision();
     }
 
     void PlayerMovement()
@@ -91,12 +93,19 @@ public class PlayerController : MonoBehaviour
             else if (!GameManagerController.gm.lights) onlight = false;
         }
 
-        if (GameManagerController.gm.lights) GameManagerController.gm.light.range = 20;
+        if (GameManagerController.gm.lights) GameManagerController.gm.light.range = 80;
+            
+        
         else GameManagerController.gm.light.range = 0;
+
+        if (GameManagerController.gm.lights && !charged) GameManagerController.gm.bulblight.range = .5f;
+        else if (!GameManagerController.gm.lights && !charged ) GameManagerController.gm.bulblight.range = 0f;
 
         if (Input.GetMouseButton(1))
         {
             GameManagerController.gm.light.range = 0;
+            GameManagerController.gm.bulblight.range = 0f;
+          
             charging = true;
             if (Input.GetAxis("Mouse ScrollWheel") > 0f)
             {
@@ -116,13 +125,15 @@ public class PlayerController : MonoBehaviour
             charging = false;
             if (charged)
             {
-                GameManagerController.gm.bulblight.enabled = true;
+                GameManagerController.gm.bulblight.range = 1f;
+                GameManagerController.gm.bulblight.type = LightType.Directional;
                 GameManagerController.gm.bulblight.intensity = 1;
-                ObjectController.obj.FlashView.SetActive(true);
+                // ObjectController.obj.FlashView.SetActive(true);
                 flashed = true;
             }
             
-            if(!charged && !flashed)GameManagerController.gm.light.range = 20;
+            if( GameManagerController.gm.lights && !charged && !flashed)GameManagerController.gm.lights = true;
+            
             charge = 0;
         }
         
@@ -131,12 +142,28 @@ public class PlayerController : MonoBehaviour
             GameManagerController.gm.bulblight.intensity -= .001f;
             if (GameManagerController.gm.bulblight.intensity <= 0f)
             {
-                GameManagerController.gm.bulblight.enabled = false;
+                GameManagerController.gm.bulblight.type = LightType.Spot;
+                GameManagerController.gm.bulblight.intensity = 1;
                 flashed = false;
                 charged = false;
             }
         }
         
+    }
+
+    void NightVision()
+    {
+        if (!charging && !GameManagerController.gm.lights) nightimer += Time.deltaTime;
+        else
+        {
+            nightimer = 0;
+            night.intensity = 0;
+        }
+       
+        if (nightimer >= 5)
+        {
+            if (night.intensity <= .5f) night.intensity += Time.deltaTime;
+        }
     }
     void Die()
     {
