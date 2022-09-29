@@ -19,7 +19,7 @@ public class GameManagerController : MonoBehaviour
     
     private bool stop;
     [HideInInspector] public bool detected = false, chasing;
-    public float sensitivex;
+    public float sensitivex, scrollwheel;
    
     public Light light;
     [HideInInspector]public Light bulblight;
