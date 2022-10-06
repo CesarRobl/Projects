@@ -9,41 +9,61 @@ public class PlayerController : MonoBehaviour
 {
     public Rigidbody rb;
     public Light night;
+    public Animation ani;
+    public AudioSource Audio,Audio2,flash;
     [HideInInspector] public float hp = 1;
     private Vector3 speed;
-    [SerializeField]public bool charging,charged,flashed,nightvision;
+    [SerializeField] public bool charging, charged, flashed, stun, stunenemy;
     public bool onlight;
-    [HideInInspector] public float zspeed = 10, mousex, mousey,charge,nightimer;
-    
-    void Awake()
+    [HideInInspector] public float zspeed = 10, mousex, mousey, charge, nightimer;
+    public bool ParentEnemy,running;
+
+    void Start()
     {
         GameManagerController.pc = this;
     }
-    
+
     void Update()
     {
-        PlayerMovement();
-        Flashlight();
-        NightVision();
+        
+        if (!GameManagerController.gm.dead && !GameManagerController.gm.win)
+        {
+            // Debug.Log(GameManagerController.gm.chasing);
+            PlayerMovement();
+            Flashlight();
+            NightVision();
+            CheckSpawns();
+            PlaySounds();
+        }
+
+        if (ParentEnemy) transform.SetParent(GameManagerController.ec.transform);
     }
 
+    void PlaySounds()
+    {
+        if (running)
+        {
+            
+        }
+    }
     void PlayerMovement()
     {
+        
         mousey = Mathf.Clamp(mousey, -90, 90);
         mousex = Input.GetAxis("Mouse X") * GameManagerController.gm.sensitivex;
-        mousey =  -Input.GetAxis("Mouse Y") * GameManagerController.gm.sensitivex;
-        transform.Rotate(0,mousex,0);
+        mousey = -Input.GetAxis("Mouse Y") * GameManagerController.gm.sensitivex;
+        transform.Rotate(0, mousex, 0);
         Vector3 vel = new Vector3(0, 0, 0);
         speed = new Vector3(1.5f, 0, 0);
         Vector3 sidespeed = transform.right * zspeed;
         Vector3 fowardspeed = transform.forward * zspeed;
-        
+
         if (Input.GetKey(KeyCode.W))
         {
-            
+
             vel += fowardspeed;
         }
-        
+
         if (Input.GetKey(KeyCode.S))
         {
             vel += -fowardspeed;
@@ -59,21 +79,23 @@ public class PlayerController : MonoBehaviour
             vel += sidespeed;
         }
 
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) && !GameManagerController.gm.exhausted)
         {
+            
             GameManagerController.gm.crouching = GameManagerController.PlayerCrouching.Running;
-            zspeed = 20;
+            zspeed = 10;
         }
-        
+       
+
         else if (Input.GetKey(KeyCode.LeftControl))
         {
             GameManagerController.gm.crouching = GameManagerController.PlayerCrouching.Crouching;
-            zspeed = 5;
+            zspeed = 3;
         }
         else
         {
             GameManagerController.gm.crouching = GameManagerController.PlayerCrouching.Nothing;
-            zspeed = 10;
+            zspeed = 7;
         }
 
         vel = Vector3.Lerp(rb.velocity, vel, GameManagerController.gm.walkdelay * Time.deltaTime);
@@ -83,23 +105,33 @@ public class PlayerController : MonoBehaviour
     void Flashlight()
     {
         bool on;
-        
-        if (Input.GetMouseButtonDown(0) && !charging)
+        if (!GameManagerController.gm.nobattery)
         {
-            if(!onlight)GameManagerController.gm.lights = true;
-            else if (onlight) GameManagerController.gm.lights = false;
+            if (Input.GetMouseButtonDown(0) && !charging)
 
-            if (GameManagerController.gm.lights) onlight = true;
-            else if (!GameManagerController.gm.lights) onlight = false;
+            {
+                if (!onlight) GameManagerController.gm.lights = true;
+                else if (onlight) GameManagerController.gm.lights = false;
+
+                if (GameManagerController.gm.lights) onlight = true;
+                else if (!GameManagerController.gm.lights) onlight = false;
+                flash.Play();
+            }
         }
+        else
+        {
 
+            GameManagerController.gm.lights = false;
+        }
         if (GameManagerController.gm.lights) GameManagerController.gm.light.range = 80;
-            
-        
+
+
         else GameManagerController.gm.light.range = 0;
 
         if (GameManagerController.gm.lights && !charged) GameManagerController.gm.bulblight.range = .5f;
-        else if (!GameManagerController.gm.lights && !charged ) GameManagerController.gm.bulblight.range = 0f;
+        else if (!GameManagerController.gm.lights && !charged) GameManagerController.gm.bulblight.range = 0f;
+
+       
 
         if (Input.GetMouseButton(1))
         {
@@ -115,7 +147,7 @@ public class PlayerController : MonoBehaviour
             if (charge >= 10)
             {
                 charged = true;
-                Debug.Log("I am charged");
+               
             }
         }
         
@@ -128,7 +160,8 @@ public class PlayerController : MonoBehaviour
                 GameManagerController.gm.bulblight.range = 1f;
                 GameManagerController.gm.bulblight.type = LightType.Directional;
                 GameManagerController.gm.bulblight.intensity = 1;
-                // ObjectController.obj.FlashView.SetActive(true);
+                stun = true;
+              
                 flashed = true;
             }
             
@@ -160,32 +193,79 @@ public class PlayerController : MonoBehaviour
             night.intensity = 0;
         }
        
-        if (nightimer >= 5)
+        if (nightimer >= 4)
         {
             if (night.intensity <= .5f) night.intensity += Time.deltaTime;
         }
     }
-    void Die()
-    {
-        
-    }
 
-    private void OnTriggerEnter(Collider other)
+    void StunEnemy()
     {
-        FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
-        if (fov != null && !fov.flash)
+        Vector3 diff = GameManagerController.ec.transform.position - transform.position;
+        if (Physics.Raycast(transform.position, diff, out RaycastHit hit, 100))
         {
-            GameManagerController.gm.chasing = true;
-            
+            EnemyController ce = hit.collider.GetComponent<EnemyController>();
+            if (ce != null)
+            {
+                ce.stun = true;
+                Debug.Log("i hit");
+            }
         }
     }
 
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireCube(transform.position + transform.forward * 1, new Vector3(20,1.75f,20) * 2);
+    }
+
+    void CheckSpawns()
+    {
+      
+    }
+    IEnumerator stuntimer()
+    {
+        yield return new WaitForSeconds(1);
+        stun = false;
+    }
+
+    public void Die()
+    {
+        GameManagerController.gm.dead = true;
+        ani.enabled = true;
+        if (GameManagerController.gm.dead)
+        {
+            foreach (var i in GameManagerController.gm.flashlight)
+            {
+                i.SetActive(false);
+            }
+            gameObject.SetActive(false);
+            GameManagerController.cam.transform.SetParent(GameManagerController.ec.transform);
+            GameManagerController.cam.transform.localPosition = new Vector3(0 ,0, 2);
+            GameManagerController.cam.transform.LookAt(GameManagerController.ec.transform);
+            
+            GameManagerController.ec.nav.SetDestination(GameManagerController.ec.transform.position);
+            
+        }
+
+
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        WinboxScript win = other.gameObject.GetComponent<WinboxScript>();
+        if (win != null)
+        {
+            GameManagerController.gm.Winscreen();
+        }
+    }
+    
     private void OnTriggerExit(Collider other)
     {
         FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
         {
             if(fov != null && !fov.flash) GameManagerController.gm.chasing = false;
-            
+            Debug.Log("hey");
         }
         
     }

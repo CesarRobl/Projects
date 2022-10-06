@@ -19,7 +19,7 @@ public class FieldOfView : MonoBehaviour
 
     public bool flash;
     
-    private void Awake()
+    private void Start()
     {
 
          points = new Vector3[5]
@@ -87,4 +87,24 @@ public class FieldOfView : MonoBehaviour
     {
         Gizmos.DrawLine(points[1], new Vector3(1,1,0));
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        PlayerController pp = other.gameObject.GetComponent<PlayerController>();
+        if (pp != null)
+        {
+            GameManagerController.gm.chasing = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        PlayerController pp = other.gameObject.GetComponent<PlayerController>();
+        if (pp != null)
+        {
+            GameManagerController.gm.chasing = false;
+        }
+    }
+
+  
 }

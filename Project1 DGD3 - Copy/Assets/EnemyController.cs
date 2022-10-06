@@ -14,11 +14,12 @@ using Vector3 = UnityEngine.Vector3;
 public class EnemyController : MonoBehaviour
 {
     public NavMeshAgent nav;
+    public AudioSource Enemy,Enemy2;
     
     public LayerMask Ground, Player;
     private float patroltimer = 2;
     
-    [HideInInspector]public bool arrived,  heard = false, stop,  ground = true, wall, playerfound,footsteps,isaw;
+    [HideInInspector]public bool stun,  heard = false, stop,  ground = true, wall, playerfound,footsteps,isaw;
     private float randomx, randomz;
     private bool lol;
     private bool locset,stuck;
@@ -26,8 +27,9 @@ public class EnemyController : MonoBehaviour
     private Vector3 randomloc,direction;
     public float stucktimer,chasetimer,searchtimer;
     private Vector3 no;
-    
-    void Awake()
+ public float noisetimer, noisetimer2;
+ public int random1, ran2;
+    void Start()
     {
         nav = GetComponent<NavMeshAgent>();
         GameManagerController.ec = this;
@@ -36,34 +38,45 @@ public class EnemyController : MonoBehaviour
   
     void Update()
     {
-        direction = GameManagerController.pc.transform.position - transform.position;
-        
-      EnemyState();
-     if(GameManagerController.gm.chasing)CheckforPlayer();
+       
+        if (!GameManagerController.gm.win)
+        {
+            if (!GameManagerController.gm.dead)
+            {
+                direction = GameManagerController.pc.transform.position - transform.position;
+
+                if (GameManagerController.gm.spawn != GameManagerController.SpawnState.Home) EnemyState();
+                if (GameManagerController.gm.chasing) CheckforPlayer();
+                KillRadius();
+            }
+        }
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.DrawCube(randomloc, new Vector3(2,2,2));
-        Gizmos.DrawRay(transform.position,no);
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawRay(transform.position,direction.normalized * 4.5f);
     }
 
     void EnemyState()
     {
-        if (playerfound) GameManagerController.gm.state = GameManagerController.EnemyState.Chasing;
-        if(!playerfound && !lol|| stop) patroltimer -= Time.deltaTime;
-        if (patroltimer <= 0 && !playerfound)
+        
+        if (stun) GameManagerController.gm.state = GameManagerController.EnemyState.Stunned;
+        if (playerfound && !stun) GameManagerController.gm.state = GameManagerController.EnemyState.Chasing;
+        if(!playerfound && !lol && !stun|| stop && !stun) patroltimer -= Time.deltaTime;
+        if (patroltimer <= 0 && !playerfound && !stun)
         {
             GameManagerController.gm.state = GameManagerController.EnemyState.Patrolling;
             stop = true;
             
         }
 
-        if(lol && !playerfound )
+        if(lol && !playerfound && !stun )
         {
             GameManagerController.gm.state = GameManagerController.EnemyState.Searching;
         }
-       
+
         switch (GameManagerController.gm.state)
         {
             case GameManagerController.EnemyState.Searching:
@@ -81,30 +94,38 @@ public class EnemyController : MonoBehaviour
                 Chase();
                 break;
             }
+            case GameManagerController.EnemyState.Stunned:
+            {
+                Stunned();
+                break;
+            }
         }
     }
 
     void Chase()
     {
+        nav.angularSpeed = 250;
+        nav.acceleration = 10;
+        nav.speed = 7.5f;
+        
         nav.SetDestination(GameManagerController.pc.transform.position);
         if (!isaw) chasetimer += Time.deltaTime;
         if (chasetimer >= 4f)
         {
             playerfound = false;
             GameManagerController.gm.state = GameManagerController.EnemyState.Patrolling;
+            GameManagerController.gm.chasing = false;
             chasetimer = 0;
         }
     }
 
     void CheckforPlayer()
     {
-        nav.angularSpeed = 250;
-        nav.acceleration = 10;
-        nav.speed = 7.5f;
-        Debug.Log(GameManagerController.gm.chasing);
-         
+
+
+
         no = direction;
-        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, 100))
+        if (Physics.Raycast(transform.position, direction, out RaycastHit hit))
         {
             PlayerController pc = hit.collider.GetComponent<PlayerController>();
             if (pc != null)
@@ -119,12 +140,21 @@ public class EnemyController : MonoBehaviour
 
     }
 
+    void KillRadius()
+    {
+        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, 4.5f))
+        {
+            PlayerController pp = hit.collider.GetComponent<PlayerController>();
+            if(pp != null) GameManagerController.pc.Die();
+        }
+    }
     void FollowSteps()
     {
         nav.angularSpeed = 190;
         nav.acceleration = 10;
         nav.speed = 5f;
-        
+       Enemy.Play();
+      
         if (footsteps)
         {
             nav.SetDestination(GameManagerController.pc.transform.position);
@@ -144,38 +174,54 @@ public class EnemyController : MonoBehaviour
     void Patrol()
     {
         nav.angularSpeed = 120;
-        nav.acceleration = 8;
-        nav.speed = 3.5f;
-        
-       randomloc = new Vector3(randomx, transform.position.y, randomz);
-        if (!locset || !ground || wall || stuck)
+        nav.acceleration = 7;
+        nav.speed = 10f;
+
+        noisetimer2 -= Time.deltaTime;
+        if (noisetimer2 <= 0)
         {
-            randomx = Random.Range(Random.Range(-20,0) + transform.position.x, Random.Range(0,10) + transform.position.x);
-            randomz = Random.Range(Random.Range(-20,0)+ transform.position.z, Random.Range(0,10) + transform.position.z);
-            locset = true;
-            arrived = false;
-            stuck = false;
-            stucktimer = 0;
+            
+            Enemy2.Play();
+            noisetimer = 2;
+        }
+        
+        if (GameManagerController.gm.arrived)
+        {
+
+
+            randomloc = new Vector3(randomx, transform.position.y, randomz);
+            if (!locset || !ground || wall || stuck)
+            {
+                randomx = Random.Range(Random.Range(-20, 0) + transform.position.x,
+                    Random.Range(0, 10) + transform.position.x);
+                randomz = Random.Range(Random.Range(-20, 0) + transform.position.z,
+                    Random.Range(0, 10) + transform.position.z);
+                locset = true;
+
+                stuck = false;
+                stucktimer = 0;
+            }
+
+            stucktimer += Time.deltaTime;
+            if (stucktimer >= 8)
+            {
+                stuck = true;
+            }
+
+            nav.SetDestination(randomloc);
+            if (transform.position == randomloc)
+            {
+                stucktimer = 0;
+                loctimer += Time.deltaTime;
+            }
+
+            if (loctimer >= 4)
+            {
+                locset = false;
+                loctimer = 0;
+            }
         }
 
-         stucktimer += Time.deltaTime;
-        if (stucktimer >= 8)
-        {
-            stuck = true;
-        }
-        
-         nav.SetDestination(randomloc);
-        if (transform.position == randomloc)
-        {
-            stucktimer = 0;
-            loctimer += Time.deltaTime;
-        }
-        
-        if (loctimer >= 4)
-        {
-            locset = false;
-            loctimer = 0;
-        }
         if (Physics.Raycast(randomloc, -transform.up,10 ,LayerMask.NameToLayer("Ground")))
         {
             ground = true;
@@ -189,6 +235,13 @@ public class EnemyController : MonoBehaviour
         else wall = false;
         
         
+    }
+
+    void Stunned()
+    {
+        nav.SetDestination(transform.position);
+     
+        Debug.Log("I am stunned");
     }
 
     private void OnTriggerEnter(Collider other)
