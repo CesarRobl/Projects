@@ -13,9 +13,9 @@ public class GameManagerController : MonoBehaviour
     public static EnemyController ec;
     public static CameraController cam;
     public GameObject steps;
-    public List<Transform> ButtonLoc;
-    public List<Transform> ButtonLoc2;
-    public List<Transform> ButtonLoc3;
+    public List<Transform> buttonLoc;
+    public List<Transform> buttonLoc2;
+    public List<Transform> buttonLoc3;
     public List<GameObject> Button;
     public List<E_Spawner> e_spawn;
     public List<GameObject> flashlight;
@@ -49,14 +49,15 @@ public class GameManagerController : MonoBehaviour
         spawn = SpawnState.Home;
         bulblight = ObjectController.obj.bulb.GetComponent<Light>();
         gm = this;
-     
+        buttonspressed = 0;
+        win = false;
     }
 
 
 
     void Update()
     {
-        Debug.Log(dead);
+        
        
         if (dead)
         {
@@ -76,12 +77,10 @@ public class GameManagerController : MonoBehaviour
                 SpawnButton();
                 stops = true;
             }
-
             PlayerSteps();
             EnemySpawns();
             Progress();
         }
-
         HideMouse();
 
 
@@ -143,9 +142,9 @@ void HideMouse()
             stop = false;
         }
         
-        Vector3 runningsteps = new Vector3(14,3,14);
+        Vector3 runningsteps = new Vector3(18,3,18);
         Vector3 crouchingsteps = new Vector3(2.5f, 3, 2.5f);
-        Vector3 normal = new Vector3(8, 3, 8);
+        Vector3 normal = new Vector3(9.5f, 3, 9.5f);
         switch (crouching)
         {
             case PlayerCrouching.Running:
@@ -173,7 +172,7 @@ void HideMouse()
     void EnemySpawns()
     {
         if(spawn != SpawnState.Spawn && spawn != SpawnState.Spawned && spawn != SpawnState.Non)spawntimer += Time.deltaTime;
-        if (spawntimer >= 3) spawn = SpawnState.Spawn;
+        if (spawntimer >= 5.5f) spawn = SpawnState.Spawn;
         switch (spawn)
         {
             case SpawnState.Home:
@@ -256,9 +255,9 @@ void HideMouse()
 
     void SpawnButton()
     {
-        Button[0].gameObject.transform.position = ButtonLoc[Random.Range(0,9)].position;
-        Button[1].gameObject.transform.position = ButtonLoc2[Random.Range(0,8)].position;
-        Button[2].gameObject.transform.position = ButtonLoc3[Random.Range(0,7)].position;
+        Button[0].gameObject.transform.position = buttonLoc[Random.Range(0,buttonLoc.Count)].position;
+        Button[1].gameObject.transform.position = buttonLoc2[Random.Range(0,buttonLoc2.Count)].position;
+        Button[2].gameObject.transform.position = buttonLoc3[Random.Range(0,buttonLoc3.Count)].position;
     }
 
     void Progress()

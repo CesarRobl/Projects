@@ -21,6 +21,9 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         GameManagerController.pc = this;
+        GameManagerController.gm.dead = false;
+        if (GameManagerController.gm.light == null)
+            GameManagerController.gm.lights = gameObject.GetComponentInChildren<Light>();
     }
 
     void Update()
@@ -265,7 +268,7 @@ public class PlayerController : MonoBehaviour
         FieldOfView fov = other.gameObject.GetComponent<FieldOfView>();
         {
             if(fov != null && !fov.flash) GameManagerController.gm.chasing = false;
-            Debug.Log("hey");
+            
         }
         
     }

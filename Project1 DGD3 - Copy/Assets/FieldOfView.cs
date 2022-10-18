@@ -83,10 +83,10 @@ public class FieldOfView : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawLine(points[1], new Vector3(1,1,0));
-    }
+    // private void OnDrawGizmos()
+    // {
+    //     Gizmos.DrawLine(points[1], new Vector3(1,1,0));
+    // }
 
     private void OnTriggerEnter(Collider other)
     {

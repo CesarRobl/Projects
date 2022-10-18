@@ -16,6 +16,7 @@ public class ObjectController : MonoBehaviour
     public List<GameObject> bars;
     public Material green;
     public Material grey;
+    public Material sprint;
 
     public Image win;
     public TextMeshProUGUI text;

@@ -146,6 +146,7 @@ new Vector3(0.6f,2.5f,0)
     {
         if (GameManagerController.gm.crouching == GameManagerController.PlayerCrouching.Running)
         {
+            
             for (int i = 0; i < 1; i++)
             {
 
