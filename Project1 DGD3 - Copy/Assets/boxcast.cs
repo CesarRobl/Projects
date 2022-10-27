@@ -5,6 +5,7 @@ using UnityEngine;
 public class boxcast : MonoBehaviour
 {
     // Start is called before the first frame update
+    public bool player;
     void Start()
     {
         

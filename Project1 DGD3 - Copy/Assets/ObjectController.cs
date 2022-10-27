@@ -20,12 +20,16 @@ public class ObjectController : MonoBehaviour
 
     public Image win;
     public TextMeshProUGUI text;
+    public TextMeshProUGUI control;
 
     public List<AudioClip> stepsound;
     public List<AudioClip> flashsound;
     public List<AudioClip> EnemyIdle;
     public List<AudioClip> EnemyAlert;
     public AudioClip enemychase;
+
+    public Light EnemyPoint;
+    public Light enemyspot;
     void Start()
     {
       

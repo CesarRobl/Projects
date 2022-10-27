@@ -126,7 +126,7 @@ public class PlayerController : MonoBehaviour
 
             GameManagerController.gm.lights = false;
         }
-        if (GameManagerController.gm.lights) GameManagerController.gm.light.range = 80;
+        if (GameManagerController.gm.lights) GameManagerController.gm.light.range = 30;
 
 
         else GameManagerController.gm.light.range = 0;
@@ -196,25 +196,13 @@ public class PlayerController : MonoBehaviour
             night.intensity = 0;
         }
        
-        if (nightimer >= 4)
+        if (nightimer >= 2.5f)
         {
             if (night.intensity <= .5f) night.intensity += Time.deltaTime;
         }
     }
 
-    void StunEnemy()
-    {
-        Vector3 diff = GameManagerController.ec.transform.position - transform.position;
-        if (Physics.Raycast(transform.position, diff, out RaycastHit hit, 100))
-        {
-            EnemyController ce = hit.collider.GetComponent<EnemyController>();
-            if (ce != null)
-            {
-                ce.stun = true;
-                Debug.Log("i hit");
-            }
-        }
-    }
+    
 
     private void OnDrawGizmos()
     {
@@ -232,27 +220,7 @@ public class PlayerController : MonoBehaviour
         stun = false;
     }
 
-    public void Die()
-    {
-        GameManagerController.gm.dead = true;
-        ani.enabled = true;
-        if (GameManagerController.gm.dead)
-        {
-            foreach (var i in GameManagerController.gm.flashlight)
-            {
-                i.SetActive(false);
-            }
-            gameObject.SetActive(false);
-            GameManagerController.cam.transform.SetParent(GameManagerController.ec.transform);
-            GameManagerController.cam.transform.localPosition = new Vector3(0 ,0, 2);
-            GameManagerController.cam.transform.LookAt(GameManagerController.ec.transform);
-            
-            GameManagerController.ec.nav.SetDestination(GameManagerController.ec.transform.position);
-            
-        }
-
-
-    }
+    
 
     private void OnTriggerStay(Collider other)
     {
@@ -260,6 +228,12 @@ public class PlayerController : MonoBehaviour
         if (win != null)
         {
             GameManagerController.gm.Winscreen();
+        }
+        
+        boxcast box = other.gameObject.GetComponent<boxcast>();
+        if (box != null  && !box.player)
+        {
+            GameManagerController.gm.enemyclose = true;
         }
     }
     
@@ -269,6 +243,12 @@ public class PlayerController : MonoBehaviour
         {
             if(fov != null && !fov.flash) GameManagerController.gm.chasing = false;
             
+        }
+        
+        boxcast box = other.gameObject.GetComponent<boxcast>();
+        if (box != null  && !box.player)
+        {
+            GameManagerController.gm.enemyclose = false;
         }
         
     }

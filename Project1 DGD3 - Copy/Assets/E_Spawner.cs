@@ -50,7 +50,7 @@ public class E_Spawner : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         boxcast box = other.gameObject.GetComponent<boxcast>();
-        if (box != null && !stop)
+        if (box != null && !stop && box.player)
         {
             
             GameManagerController.gm.e_spawn.Add(this);
@@ -61,7 +61,7 @@ public class E_Spawner : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         boxcast box = other.gameObject.GetComponent<boxcast>();
-        if (box != null)
+        if (box != null && box.player)
         {
             GameManagerController.gm.e_spawn.Remove(this);
             stop = false;

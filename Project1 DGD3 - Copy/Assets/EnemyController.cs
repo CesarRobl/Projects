@@ -20,7 +20,7 @@ public class EnemyController : MonoBehaviour
     
     [HideInInspector]public bool stun,  heard = false, stop,  ground = true, wall, playerfound,footsteps,isaw;
     private float randomx, randomz;
-    private bool lol;
+    private bool lol,play;
     private bool locset,stuck;
     private float loctimer;
     private Vector3 randomloc,direction;
@@ -60,8 +60,8 @@ public class EnemyController : MonoBehaviour
 
     void EnemyState()
     {
-        
-        if (stun) GameManagerController.gm.state = GameManagerController.EnemyState.Stunned;
+
+        if (GameManagerController.gm.state != GameManagerController.EnemyState.Searching) play = false;
         if (playerfound && !stun) GameManagerController.gm.state = GameManagerController.EnemyState.Chasing;
         if(!playerfound && !lol && !stun|| stop && !stun) patroltimer -= Time.deltaTime;
         if (patroltimer <= 0 && !playerfound && !stun)
@@ -141,10 +141,10 @@ public class EnemyController : MonoBehaviour
 
     void KillRadius()
     {
-        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, 4.5f))
+        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, 2.5f))
         {
             PlayerController pp = hit.collider.GetComponent<PlayerController>();
-            if(pp != null) GameManagerController.pc.Die();
+            if (pp != null) GameManagerController.gm.dead = true;
         }
     }
     void FollowSteps()
@@ -152,6 +152,11 @@ public class EnemyController : MonoBehaviour
         nav.angularSpeed = 190;
         nav.acceleration = 10;
         nav.speed = 5f;
+        if (!play)
+        {
+            Enemy.clip = ObjectController.obj.EnemyAlert[Random.Range(0, ObjectController.obj.EnemyAlert.Count)];
+            play = true;
+        }
        Enemy.Play();
       
         if (footsteps)
@@ -179,7 +184,7 @@ public class EnemyController : MonoBehaviour
         noisetimer2 -= Time.deltaTime;
         if (noisetimer2 <= 0)
         {
-            
+            Enemy2.clip = ObjectController.obj.EnemyIdle[Random.Range(0, ObjectController.obj.EnemyIdle.Count)];
             Enemy2.Play();
             noisetimer = 2;
         }

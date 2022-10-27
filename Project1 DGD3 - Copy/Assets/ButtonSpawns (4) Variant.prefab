@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 391492620626818248, guid: 0b1b56f650f668e45bd1410e68077806, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 391492620626818248, guid: 0b1b56f650f668e45bd1410e68077806, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -17,7 +17,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: ca017a5769c411442b719a64b33b040c, type: 2}
     - target: {fileID: 391492620626818250, guid: 0b1b56f650f668e45bd1410e68077806, type: 3}
       propertyPath: m_Name
-      value: ButtonSpawns (4)
+      value: ButtonSpawns (4) Variant
       objectReference: {fileID: 0}
     - target: {fileID: 391492620626818254, guid: 0b1b56f650f668e45bd1410e68077806, type: 3}
       propertyPath: m_RootOrder
